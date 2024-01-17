@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="tyyli.css">
+    <script src="sivut.js"></script>
+    <title>Pin-testi</title>
+</head>
+<body>
+    <div id="pin-container">
+        
+        <div id="pin-div">
+            <input id="pin" placeholder="pin code" type="password" />
+            <button class="button" onclick="checkPin()">Login</button>
+        </div>
+    </div>
+    
+    <div class="hidden">
+        <h2 id="oikein">Pin-koodisi oli oikein!</h2>
+        <h2 id="otsikko">Salaisten tietojen otsikko!</h2>
+        <p>Kauheasti salaista tietoa.</p>
+        <button class="button" onclick="logOut()">Logout</button>
+    </div>
+
+    <script>
+        const savedPin = localStorage.getItem("pinkoodi")
+        if (savedPin != null && savedPin != undefined) {
+            showElements()
+        }
+
+        //log out
+        function logOut() {
+            localStorage.clear()
+            window.location.reload()
+        }
+
+        //pin-koodin tarkistus
+        async function checkPin() {
+            var pin = document.getElementById("pin").value 
+            const response = await fetch("http://localhost:3000/api/getpin")
+            const correctPin = await response.json()
+
+            if (pin == correctPin) {
+                //kirjoittaminen localstoreen
+                localStorage.setItem("pinkoodi", pin)
+                showElements()  
+
+                document.getElementById("otsikko").style.visibility = "hidden"
+
+                setTimeout(() => {
+                    document.getElementById("otsikko").style.visibility = "visible"
+                }, 4000)
+
+                //teksti ilmestyy 4 sek ajaksi
+                document.getElementById("oikein").style.visibility = "visible"
+
+                setTimeout(() => {
+                    document.getElementById("oikein").style.visibility = "hidden"
+                }, 4000)
+
+                //piilottaa otsikon
+                document.getElementById("pois").style.visibility = "hidden"
+            } else {
+                alert("Väärä pin-koodi");
+            }
+        }
+
+        //Show elements
+        function showElements() {
+            var hiddenElements = document.getElementsByClassName("hidden")
+            for (i = 0; i < hiddenElements.length; i++) {
+                hiddenElements[i].style.visibility = "visible" 
+                document.getElementById("pin-div").style.visibility = "hidden"
+            }
+        }
+    </script>
+</body>
+</html>
